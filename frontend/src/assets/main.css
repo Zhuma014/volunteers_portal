@@ -1,0 +1,13 @@
+/* Reset default browser styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Full height layout fix */
+html, body {
+  height: 100%;
+  font-family: sans-serif;
+  background-color: #ffffff;
+}
