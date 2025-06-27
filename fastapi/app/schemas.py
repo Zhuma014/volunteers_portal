@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel,EmailStr, Field
 from typing import Optional, List
 from datetime import datetime
 from enum import Enum
@@ -21,19 +21,20 @@ class CaseStatus(str, Enum):
 
 # ==== USER ====
 
+
 class UserBase(BaseModel):
-    iin: str = Field(..., min_length=12, max_length=12)
-    
-    phone_number: Optional[str]
+    email: EmailStr
 
 class UserCreate(UserBase):
+    email: EmailStr
+    first_name: str
+    last_name: str
     password: str
     role: Optional[UserRole] = None
-    first_name: str  # обязательно
-    last_name: str   # обязательно
+
 
 class UserLogin(BaseModel):
-    iin: str
+    email: EmailStr
     password: str
 
 class UserResponse(UserBase):
@@ -41,6 +42,7 @@ class UserResponse(UserBase):
     role: UserRole
     is_active: bool
     created_at: datetime
+    email: EmailStr
     first_name: str
     last_name: str
 
@@ -48,9 +50,7 @@ class UserResponse(UserBase):
         orm_mode = True
 
 class UserUpdate(BaseModel):
-    phone_number: Optional[str] = None
-    role: Optional[UserRole] = None
-
+    password: str
 
 
 

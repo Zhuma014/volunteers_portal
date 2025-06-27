@@ -1,16 +1,9 @@
+<script setup lang="ts">
+</script>
+
 <template>
-  <AdminNavBar v-if="userStore.isAdmin" />
-  <NavBar v-else />
   <RouterView />
 </template>
-
-<script setup lang="ts">
-import { useUserStore } from '@/stores/user'
-import NavBar from '@/components/NavBar.vue'
-import AdminNavBar from '@/components/AdminNavBar.vue'
-
-const userStore = useUserStore()
-</script>
 
 <style scoped>
 header {

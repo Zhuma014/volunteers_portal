@@ -1,28 +1,58 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import api from '@/api/api' // 
+import api from '@/api/api'
 
 const router = useRouter()
 
 const form = ref({
-  iin: '',
-  phone_number: '',
+  email: '',
   password: '',
+  confirmPassword: '',
   first_name: '',
   last_name: '',
 })
 
-const handleRegister = async () => {
-  try {
-    const response = await api.post('/auth/register', form.value)
+const message = ref('')
+const isSubmitting = ref(false)
+const showPassword = ref(false)
+const showConfirmPassword = ref(false) 
 
-    alert('Регистрация прошла успешно!')
+
+const togglePassword = () => {
+  showPassword.value = !showPassword.value
+}
+
+const toggleConfirmPassword = () => {
+  showConfirmPassword.value = !showConfirmPassword.value
+}
+const handleRegister = async () => {
+  message.value = ''
+
+  if (form.value.password !== form.value.confirmPassword) {
+    message.value = 'Пароли не совпадают'
+    alert(message.value)
+    return
+  }
+
+  isSubmitting.value = true
+  try {
+    const response = await api.post('/auth/register', {
+      email: form.value.email,
+      password: form.value.password,
+      first_name: form.value.first_name,
+      last_name: form.value.last_name,
+    })
+
+    message.value = 'Регистрация прошла успешно!'
+    alert(message.value)
     router.push('/login')
   } catch (error: any) {
-    const message = error.response?.data?.detail || 'Ошибка при регистрации'
-    alert(message)
+    message.value = error.response?.data?.detail || 'Ошибка при регистрации'
+    alert(message.value)
     console.error('Ошибка при регистрации:', error)
+  } finally {
+    isSubmitting.value = false
   }
 }
 </script>
@@ -31,11 +61,8 @@ const handleRegister = async () => {
   <div class="register-container">
     <h1>Регистрация</h1>
     <form @submit.prevent="handleRegister" class="register-form">
-      <label>ИИН:</label>
-      <input v-model="form.iin" required />
-
-      <label>Номер телефона:</label>
-      <input v-model="form.phone_number" />
+      <label>Email:</label>
+      <input v-model="form.email" type="email" required />
 
       <label>Имя:</label>
       <input v-model="form.first_name" required />
@@ -44,9 +71,38 @@ const handleRegister = async () => {
       <input v-model="form.last_name" required />
 
       <label>Пароль:</label>
-      <input type="password" v-model="form.password" required />
+      <div class="password-field">
+        <input :type="showPassword ? 'text' : 'password'" v-model="form.password" required />
+        <svg @click="togglePassword" class="eye-icon" viewBox="0 0 24 24">
+          <path
+            d="M12 5c-7 0-11 7-11 7s4 7 11 7 11-7 11-7-4-7-11-7zm0 12c-2.76 0-5-2.24-5-5s2.24-5 5-5 
+              5 2.24 5 5-2.24 5-5 5zm0-8a3 3 0 100 6 3 3 0 000-6z"
+            fill="#6b7280"
+          />
+        </svg>
+      </div>
 
-      <button type="submit">Зарегистрироваться</button>
+      <label>Подтвердите пароль:</label>
+      <div class="password-field">
+        <input
+          :type="showConfirmPassword ? 'text' : 'password'"
+          v-model="form.confirmPassword"
+          required
+        />
+        <svg @click="toggleConfirmPassword" class="eye-icon" viewBox="0 0 24 24">
+          <path
+            d="M12 5c-7 0-11 7-11 7s4 7 11 7 11-7 11-7-4-7-11-7zm0 12c-2.76 0-5-2.24-5-5s2.24-5 5-5 
+        5 2.24 5 5-2.24 5-5 5zm0-8a3 3 0 100 6 3 3 0 000-6z"
+            fill="#6b7280"
+          />
+        </svg>
+      </div>
+
+      <button type="submit" :disabled="isSubmitting">
+        {{ isSubmitting ? 'Регистрация...' : 'Зарегистрироваться' }}
+      </button>
+
+      <p v-if="message" class="message">{{ message }}</p>
     </form>
 
     <p class="has-account">
@@ -58,46 +114,116 @@ const handleRegister = async () => {
 
 <style scoped>
 .register-container {
-  max-width: 500px;
-  margin: 2rem auto;
-  padding: 2rem;
-  border: 1px solid #ccc;
-  border-radius: 8px;
+  max-width: 400px;
+  margin: 48px auto;
+  padding: 32px 28px 24px 28px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(60, 60, 60, 0.06);
+}
+
+h1 {
+  font-size: 2rem;
+  font-weight: 600;
+  color: #22223b;
+  margin-bottom: 24px;
+  text-align: center;
+  letter-spacing: 0.5px;
 }
 
 .register-form {
   display: flex;
   flex-direction: column;
+  gap: 14px;
 }
 
 .register-form label {
-  margin-top: 1rem;
+  font-size: 1rem;
+  color: #22223b;
+  margin-bottom: 4px;
+  font-weight: 500;
 }
 
 .register-form input {
-  padding: 0.5rem;
+  padding: 10px 12px;
   font-size: 1rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 5px;
+  background: #f8fafc;
+  transition: border 0.2s;
+}
+
+.register-form input:focus {
+  border: 1.5px solid #2563eb;
+  outline: none;
+  background: #fff;
 }
 
 .register-form button {
-  margin-top: 2rem;
-  padding: 0.75rem;
-  font-size: 1rem;
-  background-color: #42b983;
-  color: white;
+  margin-top: 18px;
+  padding: 12px 0;
+  font-size: 1.08rem;
+  background: linear-gradient(90deg, #005a9c 0%, #0078d4 100%);
+  color: #fff;
   border: none;
-  border-radius: 4px;
+  border-radius: 5px;
+  font-weight: 600;
   cursor: pointer;
+  transition: background 0.2s;
+}
+
+.register-form button:disabled {
+  background-color: #a0aec0;
+  cursor: not-allowed;
+}
+
+.message {
+  color: red;
+  margin-top: 12px;
+  text-align: center;
+  font-size: 1rem;
 }
 
 .has-account {
-  margin-top: 1rem;
+  margin-top: 18px;
   text-align: center;
+  font-size: 0.98rem;
+  color: #22223b;
 }
 
 .has-account a {
-  color: #42b983;
+  color: #2563eb;
   text-decoration: none;
-  font-weight: bold;
+  font-weight: 600;
+  margin-left: 4px;
+  transition: text-decoration 0.2s;
+}
+
+.has-account a:hover {
+  text-decoration: underline;
+}
+.password-field {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-field input {
+  flex: 1;
+}
+
+.eye-icon {
+  width: 24px;
+  height: 24px;
+  position: absolute;
+  right: 10px;
+  cursor: pointer;
+  fill: #6b7280;
+  transition: fill 0.2s;
+}
+
+.eye-icon:hover {
+  fill: #374151;
 }
 </style>

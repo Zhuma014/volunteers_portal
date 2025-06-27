@@ -1,40 +1,59 @@
 <template>
-  <div class="form-container">
+  <div class="report-container">
+    <div v-if="message" class="status-message-top">{{ message }}</div>
+
     <h1>Сообщить о коррупции</h1>
 
-    <div v-if="message" class="message">{{ message }}</div>
+    <form @submit.prevent="submit" class="report-form">
+      <select v-model="categoryId" required class="field">
+        <option disabled value="">Категория жалобы *</option>
+        <option v-for="category in categories" :key="category.id" :value="category.id">
+          {{ category.name }}
+        </option>
+      </select>
 
-    <select v-model="categoryId" class="select">
-      <option disabled value="">Категория жалобы *</option>
-      <option v-for="category in categories" :key="category.id" :value="category.id">
-        {{ category.name }}
-      </option>
-    </select>
-    <input v-model="title" placeholder="Заголовок *" class="input" />
-    <textarea v-model="description" placeholder="Описание" class="textarea"></textarea>
+      <input
+        v-model="title"
+        type="text"
+        placeholder="Заголовок *"
+        required
+        class="field"
+      />
 
-    <select v-model="regionId" class="select">
-      <option disabled value="Выберите регион">Выберите регион *</option>
-      <option v-for="region in regions" :key="region.id" :value="region.id">
-        {{ region.name }}
-      </option>
-    </select>
+      <textarea
+        v-model="description"
+        placeholder="Описание"
+        class="field textarea"
+      ></textarea>
 
-    <select v-model="cityId" class="select" :disabled="!regionId">
-      <option disabled value="">Выберите город *</option>
-      <option v-for="city in filteredCities" :key="city.id" :value="city.id">
-        {{ city.name }}
-      </option>
-    </select>
-    <input v-model="address" placeholder="Адрес *" class="input" />
-    
+      <select v-model="regionId" required class="field">
+        <option disabled value="">Выберите регион *</option>
+        <option v-for="region in regions" :key="region.id" :value="region.id">
+          {{ region.name }}
+        </option>
+      </select>
 
-    <button @click="submit" :disabled="isSubmitting" class="submit-button">
-      {{ isSubmitting ? 'Отправка...' : 'Отправить жалобу' }}
-    </button>
+      <select v-model="cityId" :disabled="!regionId" required class="field">
+        <option disabled value="">Выберите город *</option>
+        <option v-for="city in filteredCities" :key="city.id" :value="city.id">
+          {{ city.name }}
+        </option>
+      </select>
+
+      <input
+        v-model="address"
+        type="text"
+        placeholder="Адрес *"
+        required
+        class="field"
+      />
+
+      <button :disabled="isSubmitting" class="submit-button">
+        {{ isSubmitting ? 'Отправка...' : 'Отправить жалобу' }}
+      </button>
+    </form>
   </div>
 </template>
-
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
@@ -77,12 +96,13 @@ const fetchData = async () => {
 onMounted(fetchData)
 
 watch(regionId, () => {
-  cityId.value = null 
+  cityId.value = null
 })
 
 const submit = async () => {
   if (!title.value || !address.value || !regionId.value || !cityId.value || !categoryId.value) {
     message.value = 'Пожалуйста, заполните все обязательные поля'
+    setTimeout(() => (message.value = null), 3000) // ← исчезает через 3 секунды
     return
   }
 
@@ -98,6 +118,9 @@ const submit = async () => {
     })
 
     message.value = 'Жалоба успешно отправлена'
+    setTimeout(() => (message.value = null), 3000) // ← исчезает через 3 секунды
+
+    // Очистка формы
     title.value = ''
     description.value = ''
     address.value = ''
@@ -106,47 +129,53 @@ const submit = async () => {
     categoryId.value = null
   } catch (err) {
     message.value = 'Ошибка при отправке жалобы'
+    setTimeout(() => (message.value = null), 3000) // ← исчезает через 3 секунды
     console.error(err)
   } finally {
     isSubmitting.value = false
   }
 }
+
 </script>
 
-
 <style scoped>
-.form-container {
-  max-width: 500px;
-  margin: 40px auto;
-  padding: 24px;
+.report-container {
+  max-width: 800px;
+  margin: 5vh auto;
+  padding: 2.5rem 2rem;
   background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+  font-family: 'Segoe UI', Arial, sans-serif;
 }
 
 h1 {
-  margin-bottom: 20px;
-  font-size: 24px;
+  font-size: 2rem;
+  font-weight: 600;
+  color: #22223b;
+  margin-bottom: 2rem;
   text-align: center;
-  color: #333;
+  letter-spacing: 0.5px;
 }
 
-.input,
-.textarea,
-.select {
-  width: 100%;
-  padding: 10px 12px;
-  margin-bottom: 14px;
-  font-size: 16px;
-  border: 1px solid #ccc;
+.report-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.field {
+  padding: 12px;
+  font-size: 1rem;
+  border: 1px solid #cbd5e1;
   border-radius: 6px;
-  box-sizing: border-box;
+  background: #f8fafc;
+  transition: border 0.2s;
 }
 
-.input:focus,
-.textarea:focus,
-.select:focus {
-  border-color: #42b983;
+.field:focus {
+  border: 1.5px solid #2563eb;
+  background: #fff;
   outline: none;
 }
 
@@ -155,28 +184,35 @@ h1 {
   min-height: 100px;
 }
 
-.message {
-  color:  #42b983;
-  font-size: 14px;
-  margin-bottom: 14px;
+.status-message-top {
+  max-width: 400px;
+  margin: 0 auto 1.25rem auto;
+  padding: 0.85rem 1rem;
+  background-color: #f1f5f9;
+  border-left: 4px solid #2563eb;
+  color: #1e3a8a;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 500;
   text-align: center;
 }
 
 .submit-button {
-  background-color: #42b983;
-  color: white;
-  font-size: 16px;
-  font-weight: 600;
-  padding: 12px;
   width: 100%;
+  padding: 0.85rem 0;
+  font-size: 1.1rem;
+  background: linear-gradient(90deg, #005a9c 0%, #0078d4 100%);
+  color: #fff;
   border: none;
   border-radius: 6px;
+  font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: background 0.2s;
+  box-shadow: 0 2px 8px rgba(0,90,156,0.08);
 }
 
 .submit-button:hover {
-  background-color:  #42b983;
+  background: linear-gradient(90deg, #0078d4 0%, #005a9c 100%);
 }
 
 .submit-button:disabled {

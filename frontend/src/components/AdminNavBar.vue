@@ -10,9 +10,14 @@ const isAntikorStaff = computed(() => user.value?.role === 'antikor_staff')
 
 const router = useRouter()
 
-const handleLogout = () => {
+const openCanvasLogoutThenLogout = () => {
+  const canvasLogoutUrl = 'http://172.23.148.229/logout'
+  const popup = window.open(canvasLogoutUrl, '_blank')
+  if (!popup) {
+    alert('Браузер заблокировал всплывающее окно. Разрешите их для выхода из Canvas.')
+  }
   userStore.logout()
-  router.push('/login')
+  localStorage.clear()
 }
 </script>
 
@@ -23,67 +28,72 @@ const handleLogout = () => {
     </div>
 
     <ul class="nav-links">
-      <li>
-        <router-link to="/admin/messages">Все сообщения</router-link>
-      </li>
+      <li><router-link to="/admin/messages">Все сообщения</router-link></li>
+      <li><router-link to="/my-courses">📚 Мои курсы</router-link></li>
 
       <li class="dropdown">
         <button class="dropbtn">
-          👤 Кабинет
-          <span class="arrow">▼</span>
+          👤 Кабинет <span class="arrow">▼</span>
         </button>
         <div class="dropdown-content">
           <RouterLink to="/profile">Профиль</RouterLink>
           <RouterLink to="/admin/users">Все пользователи</RouterLink>
-          <button @click="handleLogout">Выйти</button>
+          <button @click="openCanvasLogoutThenLogout">Выйти</button>
         </div>
       </li>
     </ul>
   </nav>
 </template>
 
+
+
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+
 .navbar {
+  font-family: 'Inter', sans-serif;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem 2rem;
-  background: linear-gradient(90deg, #2c3e50, #4ca1af);
-  color: white;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  height: 80px;
+  padding: 0 2rem;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
 }
 
 .logo {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: white;
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #111827;
   text-decoration: none;
 }
 
 .nav-links {
   display: flex;
+  align-items: center;
   gap: 1.5rem;
   list-style: none;
-  align-items: center;
+  margin: 0;
+  padding: 0;
 }
 
 .nav-links a {
-  color: white;
+  color: #374151;
   text-decoration: none;
+  font-weight: 500;
+  font-size: 0.95rem;
   padding: 0.5rem 0.75rem;
-  border-radius: 8px;
-  transition: background-color 0.3s ease;
+  border-radius: 6px;
+  transition: background 0.2s ease;
 }
 
 .nav-links a:hover {
-  background-color: rgba(255, 255, 255, 0.15);
-}
-
-.login-btn {
-  background-color: #ffffff22;
-  border: 1px solid white;
-  border-radius: 8px;
-  padding: 0.5rem 1rem;
+  background-color: #f3f4f6;
+  color: #111827;
 }
 
 .dropdown {
@@ -91,52 +101,61 @@ const handleLogout = () => {
 }
 
 .dropbtn {
-  background: none;
-  border: none;
-  color: white;
-  cursor: pointer;
-  font: inherit;
   display: flex;
   align-items: center;
-  gap: 0.3rem;
+  gap: 0.4rem;
+  background: none;
+  border: none;
+  color: #374151;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 500;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  transition: background 0.2s ease;
+}
+
+.dropbtn:hover {
+  background-color: #f3f4f6;
 }
 
 .arrow {
   font-size: 0.75rem;
+  opacity: 0.6;
 }
 
 .dropdown-content {
   display: none;
   position: absolute;
+  top: 100%;
   right: 0;
-  top: 110%;
-  background-color: white;
-  color: black;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  border-radius: 8px;
-  overflow: hidden;
-  min-width: 160px;
-  z-index: 10;
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   flex-direction: column;
+  min-width: 180px;
+  z-index: 999;
   animation: fadeIn 0.2s ease-in-out;
 }
 
 .dropdown-content a,
 .dropdown-content button {
   padding: 0.75rem 1rem;
-  text-align: left;
-  text-decoration: none;
-  border: none;
+  color: #374151;
+  font-size: 0.95rem;
   background: none;
-  color: black;
-  cursor: pointer;
+  border: none;
+  text-align: left;
   width: 100%;
+  cursor: pointer;
   transition: background 0.2s ease;
 }
 
 .dropdown-content a:hover,
 .dropdown-content button:hover {
-  background-color: #f3f4f6;
+  background-color: #f9fafb;
+  color: #111827;
 }
 
 .dropdown:hover .dropdown-content {

@@ -11,16 +11,15 @@ class UserRole(enum.Enum):
     volunteer = "volunteer"
     antikor_staff = "antikor_staff"
 
-
+    
 class User(Base):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, index=True)
-    iin = Column(String(12), unique=True, nullable=False, index=True)
-    phone_number = Column(String(20), unique=True, nullable=True)
+    email = Column(String(150), unique=True, nullable=False, index=True)
     first_name = Column(String(100), nullable=False)
     last_name = Column(String(100), nullable=False)
-    password_hash = Column(String, nullable=False)
+    password_hash = Column(String, nullable=True)  
     role = Column(Enum(UserRole), default=UserRole.volunteer)
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())

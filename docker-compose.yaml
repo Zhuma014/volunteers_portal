@@ -12,7 +12,8 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - "5433:5432"
+  
 
   fastapi-service:
     container_name: fastapi
@@ -27,6 +28,21 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres-service:5432/${POSTGRES_DB}
     volumes:
       - ./fastapi:/app
+    # networks:
+    #   - portal
+ 
+    
+  # canvas:
+  #   image: instructure/canvas-lms:stable
+  #   container_name: canvas
+  #   ports:
+  #     - "3003:3000" 
+  #   environment:
+  #     - RAILS_ENV=production
+  #   networks:
+  #     - portal  
+  #   depends_on:
+  #     - postgres-service
 
   pgadmin:
     image: dpage/pgadmin4
@@ -42,6 +58,7 @@ services:
     volumes:
       - pgadmin_data:/var/lib/pgadmin
 
+
   vue-frontend:
     container_name: vue
     build:
@@ -51,12 +68,23 @@ services:
       - "5173:5173"
     volumes:
       - ./frontend:/app
-      - /app/node_modules # avoid node_modules conflict
+      - /app/node_modules
     working_dir: /app
     command: npm run dev -- --host
+    # networks:
+    #   - portal
+
+
 
 volumes:
   postgres_data:
     driver: local
   pgadmin_data:
     driver: local
+
+# networks:
+#   portal:
+#     driver: bridge
+ 
+
+

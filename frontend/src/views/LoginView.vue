@@ -1,45 +1,20 @@
 <script setup lang="ts">
-import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { useUserStore } from '@/stores/user'
-import api from '@/api/api'
 
 const router = useRouter()
-const authStore = useUserStore()
 
-const form = ref({
-  iin: '',
-  password: '',
-})
-
-const handleLogin = async () => {
-  try {
-    const response = await api.post('/auth/login', form.value)
-
-    const data = response.data
-    authStore.login(data.access_token)
-    router.push('/')
-  } catch (error: any) {
-    const message = error.response?.data?.detail || 'Ошибка при входе'
-    alert(message)
-    console.error(error)
-  }
+const handleCanvasLogin = () => {
+  window.location.href = "http://localhost:8000/api/auth/login/canvas"
 }
 </script>
-
 
 <template>
   <div class="login-container">
     <h1>Вход в систему</h1>
-    <form @submit.prevent="handleLogin" class="login-form">
-      <label>ИИН:</label>
-      <input v-model="form.iin" required />
 
-      <label>Пароль:</label>
-      <input type="password" v-model="form.password" required />
-
-      <button type="submit">Войти</button>
-    </form>
+    <button @click="handleCanvasLogin" class="canvas-login-button">
+      Войти через Canvas
+    </button>
 
     <p class="no-account">
       Нет аккаунта?
@@ -50,46 +25,57 @@ const handleLogin = async () => {
 
 <style scoped>
 .login-container {
-  max-width: 400px;
-  margin: 2rem auto;
-  padding: 2rem;
-  border: 1px solid #ccc;
-  border-radius: 8px;
+  max-width: 360px;
+  margin: 5vh auto;
+  padding: 2.5rem 2rem 2rem 2rem;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  text-align: center;
+  font-family: 'Segoe UI', Arial, sans-serif;
 }
 
-.login-form {
-  display: flex;
-  flex-direction: column;
+h1 {
+  font-size: 2rem;
+  font-weight: 600;
+  color: #22223b;
+  margin-bottom: 2rem;
+  letter-spacing: 0.5px;
 }
 
-.login-form label {
-  margin-top: 1rem;
-}
-
-.login-form input {
-  padding: 0.5rem;
-  font-size: 1rem;
-}
-
-.login-form button {
-  margin-top: 2rem;
-  padding: 0.75rem;
-  font-size: 1rem;
-  background-color: #42b983;
-  color: white;
+.canvas-login-button {
+  width: 100%;
+  padding: 0.85rem 0;
+  font-size: 1.1rem;
+  background: linear-gradient(90deg, #005a9c 0%, #0078d4 100%);
+  color: #fff;
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
+  font-weight: 500;
   cursor: pointer;
+  transition: background 0.2s;
+  box-shadow: 0 2px 8px rgba(0,90,156,0.08);
+}
+
+.canvas-login-button:hover {
+  background: linear-gradient(90deg, #0078d4 0%, #005a9c 100%);
 }
 
 .no-account {
-  margin-top: 1rem;
-  text-align: center;
+  margin-top: 2rem;
+  font-size: 1rem;
+  color: #555;
 }
 
 .no-account a {
-  color: #42b983;
-  text-decoration: none;
-  font-weight: bold;
+  color: #005a9c;
+  text-decoration: underline;
+  font-weight: 500;
+  margin-left: 0.3em;
+  transition: color 0.2s;
+}
+
+.no-account a:hover {
+  color: #0078d4;
 }
 </style>

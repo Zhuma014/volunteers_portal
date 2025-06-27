@@ -3,8 +3,12 @@ uvicorn[standard]
 sqlalchemy
 asyncpg
 python-dotenv
-psycopg2-binary
 passlib[bcrypt]
 pydantic
 python-jose
+requests
+pydantic[email]
+alembic
+psycopg2-binary>=2.9
+httpx
 
